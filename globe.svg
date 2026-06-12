@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Kék kör háttér (az égbolt kékje) -->
+  <circle cx="256" cy="256" r="256" fill="#1b6ca8"/>
+  <!-- Fehér földgömb rács, középre igazítva -->
+  <g fill="none" stroke="#ffffff" stroke-width="16">
+    <!-- külső kör (a glóbusz pereme) -->
+    <circle cx="256" cy="256" r="150"/>
+    <!-- függőleges középvonal -->
+    <line x1="256" y1="106" x2="256" y2="406"/>
+    <!-- vízszintes egyenlítő -->
+    <line x1="106" y1="256" x2="406" y2="256"/>
+    <!-- hosszúsági ívek (bal és jobb meridián) -->
+    <ellipse cx="256" cy="256" rx="78" ry="150"/>
+    <!-- szélességi ívek (felső és alsó paralel) -->
+    <ellipse cx="256" cy="256" rx="150" ry="78"/>
+  </g>
+</svg>

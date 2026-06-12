@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
 
   <title>RWA Today | Real-World Asset Tokenization News & Market Data</title>
-  <meta name="description" content="RWA Today covers real-world asset (RWA) tokenization: daily news, trends, projects, and market data." />
+  <meta name="description" content="RWA Today covers real-world asset (RWA) tokenization: daily news, trends, projects, and market data. Learn what RWAs are, who the key players are, and which categories matter." />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://rwa.today/" />
 
@@ -26,17 +26,25 @@
 
   <!-- Favicon (optional placeholders) -->
   <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/svg+xml" href="/globe.svg" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#1b6ca8" />
 
   <style>
     :root {
       --overlay: rgba(0,0,0,.18);
       --text: #fff;
+      --muted: rgba(255,255,255,.72);
+      --line: rgba(255,255,255,.14);
       --maxw: 1100px;
+      --content-w: 820px;
     }
     * { box-sizing: border-box; }
-    html, body { height: 100%; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
@@ -130,26 +138,115 @@
       backdrop-filter: blur(3px);
     }
 
-    /* Accessibility helper: real text is visible; background carries the photo */
-    .sr-only{
-      position:absolute;
-      width:1px; height:1px;
-      padding:0; margin:-1px;
-      overflow:hidden; clip:rect(0,0,0,0);
-      white-space:nowrap; border:0;
+    .scroll-hint {
+      position: absolute;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      color: rgba(255,255,255,.85);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,.35);
+      padding-bottom: 2px;
+    }
+    .scroll-hint:hover { border-bottom-color: rgba(255,255,255,.85); }
+
+    /* Content sections below the hero */
+    .section {
+      max-width: var(--content-w);
+      margin: 0 auto;
+      padding: 64px 20px;
+    }
+    .section + .section { border-top: 1px solid var(--line); }
+    .section h2 {
+      margin: 0 0 8px;
+      font-size: clamp(24px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .section .lead {
+      margin: 0 0 28px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 15px;
+      max-width: 60ch;
+    }
+    .section p { line-height: 1.6; }
+    .section a { color: #fff; }
+
+    /* FAQ accordion */
+    .faq details {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255,255,255,.03);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .faq summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 16px 18px;
+      font-weight: 700;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after {
+      content: "+";
+      font-weight: 400;
+      font-size: 20px;
+      color: var(--muted);
+      flex: none;
+    }
+    .faq details[open] summary::after { content: "–"; }
+    .faq details > div {
+      padding: 0 18px 18px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .faq details > div p { margin: 0 0 10px; }
+    .faq details > div p:last-child { margin-bottom: 0; }
+    .faq summary:focus-visible {
+      outline: 2px solid rgba(255,255,255,.7);
+      outline-offset: 2px;
+      border-radius: 12px;
     }
 
-    /* Footer links */
+    /* Category list */
+    .cats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 10px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+    .cats li {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255,255,255,.03);
+      padding: 14px 16px;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+    .cats strong { display: block; margin-bottom: 2px; }
+    .cats span { color: var(--muted); font-size: 13.5px; }
+
+    /* Footer (now in normal flow, after content) */
     footer {
-      position: absolute;
-      left: 0; right: 0; bottom: 0;
-      padding: 14px 18px;
+      padding: 28px 18px 24px;
       display: grid;
       justify-items: center;
       gap: 6px;
       font-size: 13px;
       opacity: .92;
-      text-shadow: 0 8px 22px rgba(0,0,0,.55);
+      border-top: 1px solid var(--line);
     }
     .footer-links {
       display: flex;
@@ -170,12 +267,22 @@
     }
     footer a:hover { border-bottom-color: rgba(255,255,255,.85); }
 
+    /* Accessibility helper */
+    .sr-only{
+      position:absolute;
+      width:1px; height:1px;
+      padding:0; margin:-1px;
+      overflow:hidden; clip:rect(0,0,0,0);
+      white-space:nowrap; border:0;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .hero::before { transform: none; }
+      html { scroll-behavior: auto; }
     }
   </style>
 
-  <!-- Structured data -->
+  <!-- Structured data: WebSite -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -186,29 +293,174 @@
     "inLanguage": "en"
   }
   </script>
+
+  <!-- Structured data: FAQPage (must mirror the visible FAQ content) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What are real-world assets (RWAs) in crypto?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Real-world assets (RWAs) are traditional, off-chain assets — such as US Treasuries, private credit, real estate, commodities, or invoices — represented as tokens on a blockchain. Tokenization makes these assets transferable, programmable, and tradable 24/7, while the underlying value remains backed by the original asset held by a custodian or issuer."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does RWA tokenization work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "An issuer places a real asset (for example, a portfolio of short-term Treasuries) with a regulated custodian, then mints tokens on a blockchain that represent claims on that asset. Smart contracts handle transfers, compliance checks (such as KYC whitelisting), and often yield distribution. Investors hold the token in their wallet; redemptions burn tokens and return the underlying value."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What are the main RWA categories?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The main categories are tokenized US Treasuries and money-market funds, private credit, stablecoins (fiat-backed tokens), tokenized real estate, commodities such as gold, tokenized equities and funds, and trade finance or invoice-based products. Newer segments are also growing fast — including carbon credits, AI and GPU compute financing, on-chain insurance, and farmland. Tokenized Treasuries and private credit have been the largest institutional segments."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Who are the key players in the RWA space?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Key players include traditional asset managers entering on-chain (such as BlackRock and Franklin Templeton), crypto-native issuers (such as Ondo Finance, Securitize, Centrifuge, Maple, and Backed), stablecoin issuers (Tether, Circle), infrastructure and oracle providers (Chainlink), and the blockchains where most RWA activity settles, including Ethereum, and networks built for RWAs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does RWA tokenization matter?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Tokenization can lower settlement times from days to seconds, enable fractional ownership of expensive assets, open global 24/7 markets, and make traditionally illiquid assets (like private credit or real estate) easier to trade and use as collateral in DeFi. It is widely viewed as a bridge between traditional finance and blockchain infrastructure."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are tokenized RWAs safe and regulated?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It depends on the issuer and jurisdiction. Many institutional RWA products are issued under securities regulations with KYC requirements, regulated custodians, and regular attestations. Risks still exist: smart-contract bugs, issuer or custodian failure, and legal uncertainty in some markets. Always review the issuer's legal structure and audits before investing. Nothing on this site is financial advice."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How big is the RWA market?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The on-chain RWA market has grown rapidly, with tokenized Treasuries, private credit, and stablecoins making up the bulk of value. Estimates vary by methodology and the market changes quickly — RWA Today tracks current totals, category breakdowns, and the leading projects as the data evolves."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 
 <body>
-  <main class="hero" aria-label="RWA Today landing page">
-    <div class="wrap">
-      <h1>RWA Today</h1>
-      <p class="subtitle">Daily real-world asset tokenization news, trends, projects and <span class="nowrap">market data.</span></p>
-      <p class="status"><span>Status: Building</span></p>
+  <main>
+    <section class="hero" aria-label="RWA Today landing page">
+      <div class="wrap">
+        <h1>RWA Today</h1>
+        <p class="subtitle">Daily real-world asset tokenization news, trends, projects and <span class="nowrap">market data.</span></p>
+        <p class="status"><span>Status: Building</span></p>
 
-      <!-- Extra SEO text (kept minimal and unobtrusive) -->
-      <p class="sr-only">
-        Real-world assets (RWA) tokenization coverage: tokenized treasuries, tokenized credit, stablecoins, on-chain funds, and institutional adoption.
-      </p>
-    </div>
-
-    <footer class="site-footer" aria-label="Related RWA Today links">
-      <div class="footer-links">
-        <a href="https://rwa.today/">RWA.Today</a>
-        <span aria-hidden="true">|</span>
-        <a href="https://rwa.watch/">RWA.Watch</a>
+        <p class="sr-only">
+          Real-world assets (RWA) tokenization coverage: tokenized treasuries, tokenized credit, stablecoins, on-chain funds, and institutional adoption.
+        </p>
       </div>
-      <div class="copyright">© 2026 RWA.Today — All rights reserved.</div>
-    </footer>
+      <a class="scroll-hint" href="#faq">Learn the basics ↓</a>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section faq" id="faq" aria-labelledby="faq-title">
+      <h2 id="faq-title">RWA tokenization, explained</h2>
+      <p class="lead">Quick answers to the most common questions about real-world assets on-chain.</p>
+
+      <details>
+        <summary>What are real-world assets (RWAs) in crypto?</summary>
+        <div>
+          <p>Real-world assets (RWAs) are traditional, off-chain assets — such as US Treasuries, private credit, real estate, commodities, or invoices — represented as tokens on a blockchain. Tokenization makes these assets transferable, programmable, and tradable 24/7, while the underlying value remains backed by the original asset held by a custodian or issuer.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>How does RWA tokenization work?</summary>
+        <div>
+          <p>An issuer places a real asset (for example, a portfolio of short-term Treasuries) with a regulated custodian, then mints tokens on a blockchain that represent claims on that asset. Smart contracts handle transfers, compliance checks (such as KYC whitelisting), and often yield distribution. Investors hold the token in their wallet; redemptions burn tokens and return the underlying value.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>What are the main RWA categories?</summary>
+        <div>
+          <p>The main categories are tokenized US Treasuries and money-market funds, private credit, stablecoins (fiat-backed tokens), tokenized real estate, commodities such as gold, tokenized equities and funds, and trade finance or invoice-based products. Newer segments are also growing fast — including carbon credits, AI and GPU compute financing, on-chain insurance, and farmland. Tokenized Treasuries and private credit have been the largest institutional segments.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Who are the key players in the RWA space?</summary>
+        <div>
+          <p>Key players include traditional asset managers entering on-chain (such as BlackRock and Franklin Templeton), crypto-native issuers (such as Ondo Finance, Securitize, Centrifuge, Maple, and Backed), stablecoin issuers (Tether, Circle), infrastructure and oracle providers (Chainlink), and the blockchains where most RWA activity settles, including Ethereum and networks built for RWAs.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Why does RWA tokenization matter?</summary>
+        <div>
+          <p>Tokenization can lower settlement times from days to seconds, enable fractional ownership of expensive assets, open global 24/7 markets, and make traditionally illiquid assets (like private credit or real estate) easier to trade and use as collateral in DeFi. It is widely viewed as a bridge between traditional finance and blockchain infrastructure.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Are tokenized RWAs safe and regulated?</summary>
+        <div>
+          <p>It depends on the issuer and jurisdiction. Many institutional RWA products are issued under securities regulations with KYC requirements, regulated custodians, and regular attestations. Risks still exist: smart-contract bugs, issuer or custodian failure, and legal uncertainty in some markets. Always review the issuer's legal structure and audits before investing. Nothing on this site is financial advice.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>How big is the RWA market?</summary>
+        <div>
+          <p>The on-chain RWA market has grown rapidly, with tokenized Treasuries, private credit, and stablecoins making up the bulk of value. Estimates vary by methodology and the market changes quickly — RWA Today tracks current totals, category breakdowns, and the leading projects as the data evolves.</p>
+        </div>
+      </details>
+    </section>
+
+    <!-- Categories overview (future hub for category subpages) -->
+    <section class="section" id="categories" aria-labelledby="cats-title">
+      <h2 id="cats-title">RWA categories we track</h2>
+      <p class="lead">The most established segments are below — but RWA tokenization keeps expanding into new asset types, and we track those too. Each category will get its own deep-dive page with the leading projects, market data, and news.</p>
+      <ul class="cats">
+        <li><strong>Tokenized Treasuries</strong><span>US T-bills & money-market funds on-chain</span></li>
+        <li><strong>Private Credit</strong><span>On-chain lending to real-world borrowers</span></li>
+        <li><strong>Stablecoins</strong><span>Fiat-backed tokens — the largest RWA segment</span></li>
+        <li><strong>Real Estate</strong><span>Fractional property ownership & funds</span></li>
+        <li><strong>Commodities</strong><span>Tokenized gold and other physical assets</span></li>
+        <li><strong>Equities & Funds</strong><span>Tokenized stocks, ETFs, and on-chain funds</span></li>
+        <li><strong>Trade Finance</strong><span>Invoices and receivables as collateral</span></li>
+        <li><strong>Infrastructure</strong><span>Issuers, custodians, oracles, and RWA chains</span></li>
+        <li><strong>Other & Emerging</strong><span>Carbon credits, AI &amp; GPU compute, insurance, farmland, niche commodities and new asset types as they appear</span></li>
+      </ul>
+      <!--
+        SEO TODO: amikor elkészülnek az aloldalak, a fenti <li> elemeket cseréld
+        <a href="/categories/tokenized-treasuries/"> stb. linkekre, és add hozzá
+        őket a sitemap.xml-hez. Halott (404) linkeket addig ne tegyél ki.
+      -->
+    </section>
   </main>
+
+  <footer class="site-footer" aria-label="Related RWA Today links">
+    <div class="footer-links">
+      <a href="https://rwa.today/">RWA.Today</a>
+      <span aria-hidden="true">|</span>
+      <a href="https://rwa.watch/">RWA.Watch</a>
+    </div>
+    <div class="copyright">© 2026 RWA.Today — All rights reserved.</div>
+  </footer>
 </body>
 </html>
