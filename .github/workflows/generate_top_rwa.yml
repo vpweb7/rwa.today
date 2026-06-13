@@ -1,1 +1,252 @@
-.github/workflows/generate_top_rwa.yml
+name: Generate Top RWA Protocols page (from private snapshots)
+
+on:
+  schedule:
+    - cron: "30 0 * * *"   # daily 00:30 UTC — after the data repo's 00:10 snapshot
+  workflow_dispatch:
+
+concurrency:
+  group: gen-top-rwa
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download gold snapshots from private data repo
+        env:
+          RWA_DATA_TOKEN: ${{ secrets.RWA_DATA_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _data && mkdir -p _data
+          REPO="vpweb7/rwa.today-data"
+          API="https://api.github.com/repos/${REPO}/contents"
+
+          dl() {  # $1 = path in repo, $2 = local output
+            curl --http1.1 -fsSL --retry 5 --retry-all-errors --retry-delay 2 \
+              -H "Authorization: Bearer $RWA_DATA_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${API}/$1?ref=main" -o "$2"
+          }
+
+          # 1) latest gold CSV (today)
+          dl "snapshots/gold/latest.csv" "_data/latest_meta.json"
+          python - <<'PY'
+          import json, base64
+          j = json.load(open("_data/latest_meta.json"))
+          open("_data/today.csv","wb").write(base64.b64decode(j["content"]))
+          print("today.csv bytes:", len(open('_data/today.csv','rb').read()))
+          PY
+
+          # 2) list the gold folder, pick the file closest to 7 days before today
+          dl "snapshots/gold" "_data/list.json"
+          python - <<'PY'
+          import json, re
+          from datetime import date
+          lst = json.load(open("_data/list.json"))
+          days = sorted(
+              n["name"].replace(".csv","")
+              for n in lst if isinstance(n, dict)
+              and re.match(r"^\d{4}-\d{2}-\d{2}\.csv$", n.get("name",""))
+          )
+          open("_data/days.txt","w").write("\n".join(days))
+          # choose baseline ~7 days before the most recent day present
+          if days:
+              ref = date.fromisoformat(days[-1])
+              target = ref.toordinal() - 7
+              best = min(days, key=lambda d: abs(date.fromisoformat(d).toordinal() - target))
+              open("_data/baseline_day.txt","w").write(best)
+              print("days:", len(days), "| ref:", days[-1], "| baseline:", best)
+          else:
+              open("_data/baseline_day.txt","w").write("")
+              print("no daily gold files found")
+          PY
+
+          # 3) download the chosen baseline day (if any)
+          BASE=$(cat _data/baseline_day.txt || true)
+          if [ -n "$BASE" ]; then
+            dl "snapshots/gold/${BASE}.csv" "_data/base_meta.json"
+            python - <<'PY'
+          import json, base64
+          j = json.load(open("_data/base_meta.json"))
+          open("_data/baseline.csv","wb").write(base64.b64decode(j["content"]))
+          print("baseline.csv ok")
+          PY
+          else
+            echo "No baseline available; movement will show as NEW/—."
+          fi
+
+      - name: Build top-rwa-protocols.html
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import csv, os
+          from datetime import date
+
+          THRESHOLD = 1_000_000.0
+
+          def read_gold(path):
+              if not os.path.exists(path):
+                  return {}
+              out = {}
+              with open(path, newline="", encoding="utf-8") as fh:
+                  for r in csv.DictReader(fh):
+                      slug = r.get("slug")
+                      if not slug:
+                          continue
+                      try:
+                          tvl = float(r.get("tvl_usd") or 0)
+                      except ValueError:
+                          tvl = 0.0
+                      out[slug] = {
+                          "name": r.get("name") or slug,
+                          "tvl": tvl,
+                          "logo": r.get("logo") or "",
+                      }
+              return out
+
+          today = read_gold("_data/today.csv")
+          base  = read_gold("_data/baseline.csv")
+
+          # dates for the header
+          today_day = open("_data/days.txt").read().strip().splitlines()[-1] if os.path.exists("_data/days.txt") else date.today().isoformat()
+          base_day  = open("_data/baseline_day.txt").read().strip() if os.path.exists("_data/baseline_day.txt") else ""
+
+          # eligible = TVL >= $1M, ranked by TVL
+          def ranked(d):
+              elig = sorted(((s,v) for s,v in d.items() if v["tvl"] >= THRESHOLD),
+                            key=lambda x: -x[1]["tvl"])
+              return elig, {s:i for i,(s,_) in enumerate(elig, start=1)}
+
+          elig_today, rank_today = ranked(today)
+          _, rank_base = ranked(base)
+
+          def fmt(v):
+              if v >= 1e9: return f"${v/1e9:.2f}B"
+              if v >= 1e6: return f"${v/1e6:.1f}M"
+              return f"${v:,.0f}"
+
+          rows_html = []
+          for rank,(slug,v) in enumerate(elig_today, start=1):
+              pr = rank_base.get(slug)
+              d = (pr - rank) if pr else None
+              if pr is None:
+                  mv = '<span class="mv new">NEW</span>'
+              elif d > 0:
+                  mv = f'<span class="mv up">&#9650;&nbsp;{d}</span>'
+              elif d < 0:
+                  mv = f'<span class="mv down">&#9660;&nbsp;{abs(d)}</span>'
+              else:
+                  mv = '<span class="mv flat">&mdash;</span>'
+              initial = (v["name"][:1] or "?").upper()
+              lg = v["logo"]
+              if lg:
+                  logo = (f'<img class="logo" src="{lg}" loading="lazy" alt="" '
+                          f'onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),'
+                          f'{{className:\'logo ph\',textContent:\'{initial}\'}}))">')
+              else:
+                  logo = f'<span class="logo ph">{initial}</span>'
+              rows_html.append(
+                  f'      <li><span class="rank">{rank}</span>{logo}'
+                  f'<span class="aname">{v["name"]}</span>'
+                  f'<span class="tvl">{fmt(v["tvl"])}</span>{mv}</li>'
+              )
+
+          n = len(elig_today)
+          movement_note = f"movement vs {base_day}" if base_day else "movement unavailable (building history)"
+
+          html = f'''<!doctype html>
+          <html lang="en"><head>
+          <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+          <title>Top RWA Protocols by TVL | RWA Today</title>
+          <meta name="description" content="Real-world asset (RWA) protocols ranked by total value locked, with weekly rank movement. Live RWA leaderboard, updated daily. Protocols above $1M TVL.">
+          <link rel="canonical" href="https://rwa.today/top-rwa-protocols.html">
+          <link rel="icon" href="/favicon.ico" sizes="any">
+          <link rel="icon" type="image/svg+xml" href="/globe.svg">
+          <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+          <meta name="theme-color" content="#1b6ca8">
+          <style>
+          :root{{--bg:#0b0f14;--text:#fff;--muted:rgba(255,255,255,.6);--faint:rgba(255,255,255,.42);--line:rgba(255,255,255,.09);--up:#2dd4bf;--down:#f87171;--card:rgba(255,255,255,.03);}}
+          *{{box-sizing:border-box;}}
+          body{{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;line-height:1.5;}}
+          .wrap{{max-width:760px;margin:0 auto;padding:48px 20px 60px;}}
+          h1{{font-size:clamp(26px,4vw,40px);font-weight:800;letter-spacing:-.02em;margin:0 0 6px;}}
+          .sub{{color:var(--muted);font-size:15px;margin:0 0 4px;}}
+          .upd{{color:var(--faint);font-size:12px;margin:0 0 20px;}}
+          .beta-note{{margin:0 0 20px;padding:11px 14px;border:1px solid rgba(45,212,191,.35);background:rgba(45,212,191,.08);border-radius:10px;font-size:13px;color:var(--muted);line-height:1.6;}}
+          .beta-note strong{{color:#2dd4bf;}}
+          ol{{list-style:none;margin:0;padding:0;}}
+          li{{display:grid;grid-template-columns:34px 30px 1fr auto auto;align-items:center;gap:12px;padding:11px 8px;border-bottom:1px solid var(--line);}}
+          li:hover{{background:var(--card);}}
+          .rank{{font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums;font-size:14px;text-align:right;}}
+          .logo{{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;object-fit:cover;font-size:11px;font-weight:800;color:var(--faint);}}
+          .aname{{font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}}
+          .tvl{{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;}}
+          .mv{{font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums;min-width:50px;text-align:right;white-space:nowrap;}}
+          .mv.up{{color:var(--up);}}.mv.down{{color:var(--down);}}.mv.flat{{color:var(--muted);opacity:.45;}}
+          .mv.new{{color:var(--up);font-size:10px;letter-spacing:.04em;border:1px solid var(--up);border-radius:999px;padding:2px 7px;}}
+          .legend{{margin-top:22px;color:var(--muted);font-size:12px;display:flex;gap:18px;flex-wrap:wrap;align-items:center;}}
+          .legend b{{color:var(--up);}}.legend i{{color:var(--down);font-style:normal;}}
+          .method{{margin-top:40px;padding-top:24px;border-top:1px solid var(--line);}}
+          .method h2{{font-size:18px;font-weight:800;margin:0 0 12px;}}
+          .method p{{color:var(--muted);font-size:13.5px;line-height:1.7;margin:0 0 10px;max-width:680px;}}
+          .method strong{{color:var(--text);}}
+          .footer{{margin-top:36px;padding-top:22px;border-top:1px solid var(--line);color:var(--faint);font-size:12px;line-height:1.7;}}
+          .footer a{{color:var(--muted);}}
+          @media(max-width:560px){{li{{grid-template-columns:28px 24px 1fr auto auto;gap:8px;}}.aname{{font-size:14px;}}}}
+          </style></head><body>
+          <div class="wrap">
+            <h1>Top RWA Protocols</h1>
+            <p class="sub">Ranked by total value locked (TVL), with weekly rank movement.</p>
+            <p class="upd">Data: DeFiLlama &middot; Updated {today_day} &middot; {n} protocols above $1M &middot; {movement_note}</p>
+            <div class="beta-note"><strong>Beta:</strong> these figures are in beta testing and may be incomplete, delayed, or inaccurate. For informational purposes only &mdash; not investment advice.</div>
+            <ol>
+          {chr(10).join(rows_html)}
+            </ol>
+            <div class="legend"><span><b>&#9650;</b> up this week</span><span><i>&#9660;</i> down this week</span><span>&mdash; unchanged</span><span class="mv new" style="min-width:0">NEW</span><span>new entry</span></div>
+
+            <div class="method">
+              <h2>Methodology</h2>
+              <p>This leaderboard ranks tokenized real-world asset (RWA) protocols by <strong>total value locked (TVL)</strong>. Underlying TVL figures come from <strong>DeFiLlama</strong>'s open API and reflect each protocol's tracked on-chain value at the most recent daily snapshot (UTC).</p>
+              <p>Only protocols with <strong>at least $1M in tracked TVL</strong> are included, to keep the list to assets with meaningful, verifiable on-chain value.</p>
+              <p><strong>Weekly movement</strong> (&#9650; / &#9660;) compares each protocol's current rank to its rank seven days earlier, within the same $1M+ universe. "NEW" marks protocols that entered the $1M+ set within the last week.</p>
+              <p>Rankings and movement are computed by RWA Today from daily snapshots; only the raw TVL is sourced from DeFiLlama. Figures change daily and may be revised as source data updates.</p>
+            </div>
+
+            <div class="footer">
+              Underlying TVL data: <a href="https://defillama.com" target="_blank" rel="noopener noreferrer">DeFiLlama</a> (open API, cited with thanks). All rankings, weekly movement and derived figures are produced by RWA Today and are not provided or endorsed by DeFiLlama. Data "as is" &middot; Informational and educational purposes only &middot; Not investment advice.
+            </div>
+          </div>
+          </body></html>'''
+
+          # dedent the leading 10 spaces from the heredoc indentation
+          html = "\n".join(line[10:] if line.startswith(" "*10) else line for line in html.split("\n"))
+
+          with open("top-rwa-protocols.html","w",encoding="utf-8") as fh:
+              fh.write(html)
+          print(f"Wrote top-rwa-protocols.html with {n} protocols (today {today_day}, baseline {base_day})")
+          PY
+
+      - name: Commit & push if changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "rwa.today bot"
+          git config user.email "actions@users.noreply.github.com"
+          rm -rf _data
+          git add top-rwa-protocols.html
+          if git diff --cached --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git commit -m "Update Top RWA Protocols $(date -u +%Y-%m-%d)"
+          git pull --rebase --autostash origin main || true
+          git push
