@@ -62,18 +62,32 @@
       text-align: center;
       padding: 24px;
       isolation: isolate;
+      /* Sky-blue base shows instantly while the photo loads (no flash, faster perceived paint) */
+      background-color: #2b6ca8;
     }
     .hero::before{
       content:"";
       position:absolute; inset:0;
-      background:
+      /* JPG fallback for older browsers */
+      background-image:
         linear-gradient(var(--overlay), var(--overlay)),
-        url("clear_skyline_across_the_water.png");
+        url("clear_skyline_across_the_water.jpg");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       transform: scale(1.02);
       z-index: -2;
+    }
+    /* Modern browsers get the much smaller WebP */
+    @supports (background-image: image-set(url("x.webp") type("image/webp"))) {
+      .hero::before{
+        background-image:
+          linear-gradient(var(--overlay), var(--overlay)),
+          image-set(
+            url("clear_skyline_across_the_water.webp") type("image/webp"),
+            url("clear_skyline_across_the_water.jpg") type("image/jpeg")
+          );
+      }
     }
     /* subtle vignette for readability */
     .hero::after{
@@ -353,7 +367,7 @@
         "name": "How big is the RWA market?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "The on-chain RWA market has grown rapidly, with tokenized Treasuries, private credit, and stablecoins making up the bulk of value. Estimates vary by methodology and the market changes quickly — RWA Today tracks current totals, category breakdowns, and the leading projects as the data evolves."
+          "text": "The on-chain RWA market has grown rapidly, with tokenized Treasuries, private credit, and stablecoins making up the bulk of value. Estimates vary by methodology and the market changes quickly."
         }
       }
     ]
@@ -373,7 +387,7 @@
           Real-world assets (RWA) tokenization coverage: tokenized treasuries, tokenized credit, stablecoins, on-chain funds, and institutional adoption.
         </p>
       </div>
-      <a class="scroll-hint" href="#faq">Learn the basics ↓</a>
+      <a class="scroll-hint" href="#faq">What is RWA? ↓</a>
     </section>
 
     <!-- FAQ -->
@@ -426,7 +440,7 @@
       <details>
         <summary>How big is the RWA market?</summary>
         <div>
-          <p>The on-chain RWA market has grown rapidly, with tokenized Treasuries, private credit, and stablecoins making up the bulk of value. Estimates vary by methodology and the market changes quickly — RWA Today tracks current totals, category breakdowns, and the leading projects as the data evolves.</p>
+          <p>The on-chain RWA market has grown rapidly, with tokenized Treasuries, private credit, and stablecoins making up the bulk of value. Estimates vary by methodology and the market changes quickly.</p>
         </div>
       </details>
     </section>
@@ -451,6 +465,11 @@
         <a href="/categories/tokenized-treasuries/"> stb. linkekre, és add hozzá
         őket a sitemap.xml-hez. Halott (404) linkeket addig ne tegyél ki.
       -->
+    </section>
+
+    <section class="section" id="learn" aria-labelledby="learn-title">
+      <h2 id="learn-title">New to RWAs?</h2>
+      <p class="lead">Tokenization comes with a lot of jargon. Our <a href="/glossary.html">RWA Glossary</a> explains the key terms — tokenized treasuries, TVL, attestation, custody, proof of reserve and more — in plain English.</p>
     </section>
   </main>
 

@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RWA Glossary — Real-World Asset Tokenization Terms Explained | RWA Today</title>
+  <meta name="description" content="A plain-English glossary of real-world asset (RWA) tokenization terms: tokenized treasuries, TVL, attestation, private credit, stablecoins, custody and more. Clear definitions for newcomers." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://rwa.today/glossary.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="RWA Today" />
+  <meta property="og:title" content="RWA Glossary — Tokenization Terms Explained" />
+  <meta property="og:description" content="Plain-English definitions of the key real-world asset (RWA) tokenization terms." />
+  <meta property="og:url" content="https://rwa.today/glossary.html" />
+  <meta property="og:image" content="https://rwa.today/og.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="RWA Glossary — Tokenization Terms Explained" />
+  <meta name="twitter:description" content="Plain-English definitions of the key real-world asset (RWA) tokenization terms." />
+
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/svg+xml" href="/globe.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#1b6ca8" />
+
+  <style>
+    :root{ --bg:#0b0f14; --text:#fff; --muted:rgba(255,255,255,.66); --faint:rgba(255,255,255,.45); --line:rgba(255,255,255,.10); --accent:#4da3ff; --content-w:820px; }
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; }
+    body{ margin:0; background:var(--bg); color:var(--text); font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial; line-height:1.6; }
+    a{ color:var(--accent); }
+    .wrap{ max-width:var(--content-w); margin:0 auto; padding:56px 20px 64px; }
+    .crumbs{ font-size:13px; color:var(--faint); margin-bottom:18px; }
+    .crumbs a{ color:var(--muted); text-decoration:none; border-bottom:1px solid rgba(255,255,255,.3); }
+    h1{ font-size:clamp(28px,4.5vw,46px); font-weight:800; letter-spacing:-.02em; margin:0 0 10px; }
+    .intro{ color:var(--muted); font-size:16px; max-width:64ch; margin:0 0 28px; }
+
+    /* A–Z quick nav */
+    nav.az{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 36px; }
+    nav.az a{ font-size:13px; font-weight:700; color:var(--muted); text-decoration:none; padding:5px 10px; border:1px solid var(--line); border-radius:8px; background:rgba(255,255,255,.03); }
+    nav.az a:hover{ border-color:rgba(122,183,255,.5); color:#fff; }
+
+    .term{ padding:20px 0; border-bottom:1px solid var(--line); }
+    .term:last-child{ border-bottom:none; }
+    .term h2{ font-size:19px; font-weight:800; margin:0 0 8px; scroll-margin-top:20px; }
+    .term p{ color:var(--muted); font-size:15px; margin:0; max-width:66ch; }
+    .term p a{ color:var(--accent); }
+
+    .footer{ margin-top:44px; padding-top:24px; border-top:1px solid var(--line); color:var(--faint); font-size:12px; line-height:1.7; }
+    .footer a{ color:var(--muted); }
+  </style>
+
+  <!-- Breadcrumb -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org","@type":"BreadcrumbList",
+    "itemListElement":[
+      {"@type":"ListItem","position":1,"name":"RWA Today","item":"https://rwa.today/"},
+      {"@type":"ListItem","position":2,"name":"RWA Glossary","item":"https://rwa.today/glossary.html"}
+    ]
+  }
+  </script>
+
+  <!-- DefinedTermSet: tells search engines this is a glossary of defined terms -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"DefinedTermSet",
+    "name":"RWA Tokenization Glossary",
+    "url":"https://rwa.today/glossary.html",
+    "hasDefinedTerm":[
+      {"@type":"DefinedTerm","name":"Real-World Asset (RWA)","description":"A traditional off-chain asset — such as a US Treasury bill, a loan, real estate, or gold — represented as a token on a blockchain, with its value backed by the underlying asset."},
+      {"@type":"DefinedTerm","name":"Tokenization","description":"The process of issuing a blockchain token that represents ownership of, or a claim on, a real-world asset, making it transferable and programmable on-chain."},
+      {"@type":"DefinedTerm","name":"Tokenized Treasury","description":"A blockchain token representing a share in a fund that holds short-term US government debt (T-bills), letting holders earn government-backed yield on-chain."},
+      {"@type":"DefinedTerm","name":"Total Value Locked (TVL)","description":"The total market value of assets held or tracked within a protocol at a given time, commonly used to compare the size of RWA and DeFi protocols."},
+      {"@type":"DefinedTerm","name":"Private Credit","description":"Lending to businesses or individuals outside public bond markets. On-chain private credit protocols originate or fund these loans using blockchain rails."},
+      {"@type":"DefinedTerm","name":"Stablecoin","description":"A token designed to hold a stable value, usually pegged to a fiat currency like the US dollar and backed by reserves such as cash or short-term government debt."},
+      {"@type":"DefinedTerm","name":"Attestation","description":"A report, often from an independent accounting firm, confirming that the reserves or assets backing a token actually exist as claimed."},
+      {"@type":"DefinedTerm","name":"Custodian","description":"A regulated entity that holds the real-world asset backing a token, ensuring the off-chain asset is safely stored while the token circulates on-chain."},
+      {"@type":"DefinedTerm","name":"Redemption","description":"The process of exchanging a token back for its underlying asset or cash value, which typically burns (removes) the token from circulation."},
+      {"@type":"DefinedTerm","name":"KYC (Know Your Customer)","description":"Identity-verification checks many regulated RWA products require before an investor can mint, hold, or redeem tokens."},
+      {"@type":"DefinedTerm","name":"Yield","description":"The return earned on an asset, often expressed as an annual percentage. For tokenized treasuries it reflects the interest paid by the underlying government debt."},
+      {"@type":"DefinedTerm","name":"On-chain","description":"Recorded and executed directly on a blockchain, as opposed to off-chain systems like traditional bank ledgers."},
+      {"@type":"DefinedTerm","name":"Oracle","description":"A service that delivers external data — such as asset prices or proof of reserves — onto a blockchain so smart contracts can use it."},
+      {"@type":"DefinedTerm","name":"Permissioned Token","description":"A token that can only be held or transferred by approved, identity-verified wallets, common in regulated RWA products."},
+      {"@type":"DefinedTerm","name":"Proof of Reserve","description":"On-chain or independently verified evidence that the assets backing a token exist and match the amount of tokens issued."}
+    ]
+  }
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <p class="crumbs"><a href="/">RWA Today</a> / Glossary</p>
+    <h1>RWA Glossary</h1>
+    <p class="intro">Real-world asset tokenization comes with a lot of jargon. Here are the key terms explained in plain English.</p>
+
+    <nav class="az" aria-label="Jump to term">
+      <a href="#rwa">RWA</a>
+      <a href="#tokenization">Tokenization</a>
+      <a href="#tokenized-treasury">Tokenized Treasury</a>
+      <a href="#tvl">TVL</a>
+      <a href="#private-credit">Private Credit</a>
+      <a href="#stablecoin">Stablecoin</a>
+      <a href="#attestation">Attestation</a>
+      <a href="#custodian">Custodian</a>
+      <a href="#redemption">Redemption</a>
+      <a href="#kyc">KYC</a>
+      <a href="#yield">Yield</a>
+      <a href="#on-chain">On-chain</a>
+      <a href="#oracle">Oracle</a>
+      <a href="#permissioned">Permissioned Token</a>
+      <a href="#proof-of-reserve">Proof of Reserve</a>
+    </nav>
+
+    <div class="term" id="rwa"><h2>Real-World Asset (RWA)</h2><p>A traditional, off-chain asset — such as a US Treasury bill, a loan, real estate, or gold — represented as a token on a blockchain. The token's value is backed by the underlying asset, which is held by an issuer or custodian.</p></div>
+
+    <div class="term" id="tokenization"><h2>Tokenization</h2><p>The process of issuing a blockchain token that represents ownership of, or a claim on, a real-world asset. Tokenization makes the asset transferable, programmable, and tradable on-chain, often around the clock.</p></div>
+
+    <div class="term" id="tokenized-treasury"><h2>Tokenized Treasury</h2><p>A blockchain token representing a share in a fund that holds short-term US government debt (T-bills). It lets holders earn government-backed yield on-chain. Tokenized treasuries have been one of the fastest-growing RWA categories.</p></div>
+
+    <div class="term" id="tvl"><h2>Total Value Locked (TVL)</h2><p>The total market value of assets held or tracked within a protocol at a given moment. TVL is the most common way to compare the size of RWA and DeFi protocols, though methodologies vary between data providers.</p></div>
+
+    <div class="term" id="private-credit"><h2>Private Credit</h2><p>Lending to businesses or individuals outside public bond markets. On-chain private credit protocols originate or fund these loans using blockchain rails, and the loans become the real-world asset backing the tokens.</p></div>
+
+    <div class="term" id="stablecoin"><h2>Stablecoin</h2><p>A token designed to hold a stable value, usually pegged to a fiat currency like the US dollar. Stablecoins are backed by reserves — often cash and short-term government debt — which makes them, by value, the largest real-world asset class on-chain.</p></div>
+
+    <div class="term" id="attestation"><h2>Attestation</h2><p>A report — often from an independent accounting firm — confirming that the reserves or assets backing a token actually exist as claimed. Regular attestations are a key trust signal for tokenized products.</p></div>
+
+    <div class="term" id="custodian"><h2>Custodian</h2><p>A regulated entity that holds the real-world asset backing a token. The custodian keeps the off-chain asset (cash, bonds, gold) safe while the token representing it circulates on-chain.</p></div>
+
+    <div class="term" id="redemption"><h2>Redemption</h2><p>Exchanging a token back for its underlying asset or cash value. Redeeming typically burns the token (removes it from circulation) and returns the corresponding value to the holder.</p></div>
+
+    <div class="term" id="kyc"><h2>KYC (Know Your Customer)</h2><p>Identity-verification checks that many regulated RWA products require before an investor can mint, hold, or redeem tokens. KYC is part of what distinguishes institutional RWA products from permissionless crypto tokens.</p></div>
+
+    <div class="term" id="yield"><h2>Yield</h2><p>The return earned on an asset, usually expressed as an annual percentage. For tokenized treasuries, the yield reflects the interest paid by the underlying government debt; for private credit, it reflects the loan interest.</p></div>
+
+    <div class="term" id="on-chain"><h2>On-chain</h2><p>Recorded and executed directly on a blockchain, as opposed to "off-chain" systems like traditional bank ledgers. RWA tokenization bridges off-chain assets into on-chain markets.</p></div>
+
+    <div class="term" id="oracle"><h2>Oracle</h2><p>A service that delivers external data — such as asset prices or proof of reserves — onto a blockchain, so smart contracts can act on real-world information. Oracles are critical infrastructure for RWA protocols.</p></div>
+
+    <div class="term" id="permissioned"><h2>Permissioned Token</h2><p>A token that can only be held or transferred by approved, identity-verified wallets. Many regulated RWA products use permissioned tokens to comply with securities rules.</p></div>
+
+    <div class="term" id="proof-of-reserve"><h2>Proof of Reserve</h2><p>On-chain or independently verified evidence that the assets backing a token exist and match the number of tokens issued. It helps holders confirm a token is fully backed.</p></div>
+
+    <div class="footer">
+      Definitions are provided for informational and educational purposes only and do not constitute investment, financial, or legal advice. RWA Today is an independent information resource.
+    </div>
+  </div>
+</body>
+</html>
