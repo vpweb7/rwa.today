@@ -91,6 +91,15 @@ jobs:
           .chartCard h2{font-size:15px;font-weight:800;margin:0 0 2px;}
           .chartCard .csub{font-size:12px;color:var(--faint);margin:0 0 14px;}
           .chartWrap{position:relative;height:240px;}
+          .chaingrid{display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:center;}
+          @media(max-width:640px){.chaingrid{grid-template-columns:1fr;}}
+          .chainbreak{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+          @media(max-width:480px){.chainbreak{grid-template-columns:1fr;}}
+          .chainrow{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.02);}
+          .chainrow .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+          .chainrow .cn{font-weight:700;font-size:13.5px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+          .chainrow .ca{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);font-weight:700;}
+          .chainrow .cp{font-variant-numeric:tabular-nums;font-size:13px;font-weight:800;min-width:48px;text-align:right;}
           .entrants{list-style:none;margin:10px 0 0;padding:0;}
           .entrants li{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;}
           .entrants li:last-child{border-bottom:none;}
@@ -136,6 +145,14 @@ jobs:
                 <h2>Concentration trend</h2>
                 <p class="csub">Top 3 and top 10 share of the <strong>$1M+ market value</strong> over time.</p>
                 <div class="chartWrap"><canvas id="concLine"></canvas></div>
+              </div>
+              <div class="chartCard full">
+                <h2>Chain distribution</h2>
+                <p class="csub">Where $1M+ RWA protocols are based, by <strong>primary chain</strong> (each protocol counted once).</p>
+                <div class="chaingrid">
+                  <div class="chartWrap" style="height:230px;"><canvas id="chainDonut"></canvas></div>
+                  <div id="chainBreakdown" class="chainbreak"></div>
+                </div>
               </div>
               <div class="chartCard full">
                 <h2>This week</h2>
@@ -205,6 +222,28 @@ jobs:
                 {label:'Top 3',data:series.map(d=>d.top3_share_pct),borderColor:'#5ed6ff',borderWidth:2,pointRadius:0,tension:.35}]},
               options:{responsive:true,maintainAspectRatio:false,layout:{padding:{right:46}},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw+'%'}}},scales:baseScales(v=>v+'%')},plugins:[lineLabels]});
           }
+
+          // ---- Chain distribution (primary chain, $1M+ set) ----
+          (function(){
+            const cd = DATA.chain_distribution;
+            if(!cd || !cd.breakdown || !cd.breakdown.length) return;
+            const palette = ['#5ed6ff','#1c8fd6','#3bb0ea','#7fe0ff','#0e7bb8','rgba(255,255,255,.14)'];
+            const labels = cd.breakdown.map(b=>b.chain);
+            const counts = cd.breakdown.map(b=>b.count);
+            const colors = cd.breakdown.map((b,i)=> b.chain==='Others' ? 'rgba(255,255,255,.14)' : palette[i%palette.length]);
+            const total = cd.total_protocols||counts.reduce((a,b)=>a+b,0);
+            const leader = cd.leader||{};
+            const chainCenter = {id:'chainCenter',afterDraw(chart){const {ctx}=chart;const meta=chart.getDatasetMeta(0);if(!meta||!meta.data||!meta.data.length)return;const arc=meta.data[0];const cx=arc.x,cy=arc.y;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';ctx.font='800 30px ui-sans-serif,system-ui,sans-serif';ctx.fillText(total,cx,cy-6);ctx.fillStyle='rgba(255,255,255,.55)';ctx.font='600 10px ui-sans-serif,system-ui,sans-serif';if(leader.chain){ctx.fillText(leader.chain+' leads ('+leader.count+')',cx,cy+14);}ctx.restore();}};
+            new Chart(document.getElementById('chainDonut'),{type:'doughnut',
+              data:{labels,datasets:[{data:counts,backgroundColor:colors,borderColor:'#0b0f14',borderWidth:3}]},
+              options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+': '+c.raw+' protocols ('+cd.breakdown[c.dataIndex].share_pct+'%)'}}}},plugins:[chainCenter]});
+            // breakdown cards
+            const bc = document.getElementById('chainBreakdown');
+            bc.innerHTML = cd.breakdown.map((b,i)=>{
+              const col = b.chain==='Others' ? 'rgba(255,255,255,.3)' : palette[i%palette.length];
+              return `<div class="chainrow"><span class="dot" style="background:${col}"></span><span class="cn">${b.chain}</span><span class="ca">${b.count}</span><span class="cp">${b.share_pct}%</span></div>`;
+            }).join('');
+          })();
 
           const g = DATA.top_gainer_24h, ents = DATA.new_entrants_latest||[];
           let h='';
