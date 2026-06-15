@@ -165,8 +165,6 @@ jobs:
 
           rows_html = []
           for rank,(slug,v) in enumerate(elig_today, start=1):
-              share = v["tvl"] / total_elig * 100
-              share_html = f'<span class="sh">{share:.2f}%</span>'
               initial = (v["name"][:1] or "?").upper()
               lg = v["logo"]
               if lg:
@@ -176,9 +174,11 @@ jobs:
               else:
                   logo = f'<span class="logo ph">{initial}</span>'
               rows_html.append(
-                  f'      <li><span class="rank">{rank}</span>{logo}'
+                  f'      <li><a class="row" href="/asset/{slug}.html">'
+                  f'<span class="rank">{rank}</span>{logo}'
                   f'<span class="aname">{v["name"]}</span>'
-                  f'<span class="tvl">{fmt(v["tvl"])}</span>{share_html}</li>'
+                  f'<span class="tvl">{fmt(v["tvl"])}</span>'
+                  f'<span class="view">View&nbsp;&rarr;</span></a></li>'
               )
 
           n = len(elig_today)
@@ -199,7 +199,9 @@ jobs:
           *{{box-sizing:border-box;}}
           body{{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;line-height:1.5;}}
           .wrap{{max-width:760px;margin:0 auto;padding:48px 20px 60px;}}
+          .hrow{{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;}}
           h1{{font-size:clamp(26px,4vw,40px);font-weight:800;letter-spacing:-.02em;margin:0 0 6px;}}
+          .upd{{color:var(--faint);font-size:12px;white-space:nowrap;}}
           .sub{{color:var(--muted);font-size:15px;margin:0 0 4px;}}
           .tabs{{display:flex;gap:8px;margin:14px 0 18px;}}
           .tab{{flex:1;font-size:14px;font-weight:700;color:var(--muted);text-decoration:none;padding:9px 8px;border:1px solid var(--line);border-radius:10px;background:var(--card);text-align:center;white-space:nowrap;}}
@@ -209,20 +211,21 @@ jobs:
           .tab.soon:hover{{border-color:var(--line);color:var(--faint);}}
           .tab.soon:hover::after{{content:"Coming soon";position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 6px);background:#1a2230;color:#fff;font-size:11px;font-weight:600;padding:4px 8px;border-radius:6px;white-space:nowrap;border:1px solid var(--line);}}
           @media(max-width:480px){{.tab{{font-size:12.5px;padding:8px 4px;}}.tabs{{gap:6px;}}}}
-          .upd{{color:var(--faint);font-size:12px;margin:0 0 20px;text-align:right;}}
           .beta-note{{margin:0 0 20px;padding:11px 14px;border:1px solid rgba(45,212,191,.35);background:rgba(45,212,191,.08);border-radius:10px;font-size:13px;color:var(--muted);line-height:1.6;}}
           .beta-note strong{{color:#5ed6ff;}}
           ol{{list-style:none;margin:0;padding:0;}}
-          li{{display:grid;grid-template-columns:34px 30px 1fr auto auto;align-items:center;gap:12px;padding:11px 8px;border-bottom:1px solid var(--line);}}
-          li:hover{{background:var(--card);}}
+          li{{border-bottom:1px solid var(--line);}}
+          .row{{display:grid;grid-template-columns:34px 30px 1fr auto auto;align-items:center;gap:12px;padding:11px 8px;text-decoration:none;color:inherit;}}
+          .row:hover{{background:var(--card);}}
+          .row:hover .view{{color:var(--up);border-color:rgba(94,214,255,.6);}}
           .thead{{display:grid;grid-template-columns:34px 30px 1fr auto auto;align-items:center;gap:12px;padding:0 8px 8px;border-bottom:1px solid var(--line);}}
           .thead span{{color:var(--faint);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}}
-          .thead .aname{{text-align:left;}}.thead .tvl,.thead .sh{{text-align:right;}}
+          .thead .aname{{text-align:left;}}.thead .tvl{{text-align:right;}}
           .rank{{font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums;font-size:14px;text-align:right;}}
           .logo{{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;object-fit:cover;font-size:11px;font-weight:800;color:var(--faint);}}
           .aname{{font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}}
           .tvl{{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;}}
-          .sh{{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;min-width:64px;text-align:right;color:var(--muted);white-space:nowrap;}}
+          .view{{font-size:12.5px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:5px 10px;white-space:nowrap;transition:color .12s,border-color .12s;}}
           .legend{{margin-top:22px;color:var(--muted);font-size:12px;display:flex;gap:18px;flex-wrap:wrap;align-items:center;}}
           .legend b{{color:var(--up);}}.legend i{{color:var(--down);font-style:normal;}}
           .method{{margin-top:40px;padding-top:24px;border-top:1px solid var(--line);}}
@@ -237,26 +240,28 @@ jobs:
           @media(max-width:560px){{li{{grid-template-columns:28px 24px 1fr auto auto;gap:8px;}}.aname{{font-size:14px;}}}}
           </style></head><body>
           <div class="wrap">
-            <h1>Top RWA Protocols</h1>
-            <p class="sub">Ranked by total value locked (TVL), with 24-hour change.</p>
+            <div class="hrow">
+              <h1>Top RWA Protocols</h1>
+              <p class="upd">Updated {today_day}</p>
+            </div>
+            <p class="sub">Ranked by total value locked (TVL), with each protocol's market share.</p>
             <div class="tabs">
               <a class="tab active" href="/top-rwa-protocols.html">Dashboard</a>
               <a class="tab" href="/analytics.html">Analytics</a>
               <span class="tab soon" title="Coming soon" role="button" aria-disabled="true">News</span>
             </div>
-            <p class="upd">Updated {today_day}</p>
             <div class="beta-note"><strong>Beta:</strong> these figures are in beta testing and may be incomplete, delayed, or inaccurate. For informational purposes only &mdash; not investment advice.</div>
-            <div class="thead"><span class="rank">#</span><span></span><span class="aname">Protocol</span><span class="tvl">TVL</span><span class="sh">Share</span></div>
+            <div class="thead"><span class="rank">#</span><span></span><span class="aname">Protocol</span><span class="tvl">TVL</span><span></span></div>
             <ol>
           {chr(10).join(rows_html)}
             </ol>
-            <div class="legend"><span>TVL = total value locked</span><span><b>Share</b> = % of the listed $1M+ market value</span><span>This is a filtered list &mdash; only protocols above $1M TVL are shown.</span></div>
+            <div class="legend"><span>TVL = total value locked</span><span>Tap any protocol to view its details.</span><span>This is a filtered list &mdash; only protocols above $1M TVL are shown.</span></div>
 
             <details class="method">
               <summary>Methodology</summary>
               <p>This leaderboard ranks tokenized real-world asset (RWA) protocols by <strong>total value locked (TVL)</strong>. Underlying TVL figures come from <strong>DeFiLlama</strong>'s open API and reflect each protocol's tracked on-chain value at the most recent daily snapshot (UTC).</p>
               <p>Only protocols with <strong>at least $1M in tracked TVL</strong> are included, to keep the list to assets with meaningful, verifiable on-chain value.</p>
-              <p>The <strong>Share</strong> column shows each protocol's TVL as a percentage of the combined TVL of all listed ($1M+) protocols, based on the latest snapshot.</p>
+              <p>Each row links to a protocol detail page with more statistics. Tap any protocol to open it.</p>
               <p>Rankings and shares are computed by RWA Today from daily snapshots; only the raw TVL is sourced from DeFiLlama. Figures change daily and may be revised as source data updates.</p>
             </details>
 
