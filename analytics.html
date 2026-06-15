@@ -15,9 +15,13 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,s
 h1{font-size:clamp(26px,4vw,40px);font-weight:800;letter-spacing:-.02em;margin:0 0 6px;}
 .sub{color:var(--muted);font-size:15px;margin:0 0 18px;}
 .tabs{display:flex;gap:8px;margin:0 0 24px;}
-.tab{font-size:14px;font-weight:700;color:var(--muted);text-decoration:none;padding:9px 16px;border:1px solid var(--line);border-radius:10px;background:var(--card);min-width:120px;text-align:center;}
+.tab{flex:1;font-size:14px;font-weight:700;color:var(--muted);text-decoration:none;padding:9px 8px;border:1px solid var(--line);border-radius:10px;background:var(--card);text-align:center;white-space:nowrap;}
 .tab:hover{border-color:rgba(94,214,255,.45);color:#fff;}
 .tab.active{border-color:rgba(94,214,255,.85);background:rgba(94,214,255,.10);color:#fff;}
+.tab.soon{color:var(--faint);cursor:not-allowed;position:relative;}
+.tab.soon:hover{border-color:var(--line);color:var(--faint);}
+.tab.soon:hover::after{content:"Coming soon";position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 6px);background:#1a2230;color:#fff;font-size:11px;font-weight:600;padding:4px 8px;border-radius:6px;white-space:nowrap;border:1px solid var(--line);}
+@media(max-width:480px){.tab{font-size:12.5px;padding:8px 4px;}.tabs{gap:6px;}}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 14px;}
 @media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr);}}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;}
@@ -32,6 +36,15 @@ h1{font-size:clamp(26px,4vw,40px);font-weight:800;letter-spacing:-.02em;margin:0
 .chartCard h2{font-size:15px;font-weight:800;margin:0 0 2px;}
 .chartCard .csub{font-size:12px;color:var(--faint);margin:0 0 14px;}
 .chartWrap{position:relative;height:240px;}
+.chaingrid{display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:center;}
+@media(max-width:640px){.chaingrid{grid-template-columns:1fr;}}
+.chainbreak{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:480px){.chainbreak{grid-template-columns:1fr;}}
+.chainrow{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.02);}
+.chainrow .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+.chainrow .cn{font-weight:700;font-size:13.5px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.chainrow .ca{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);font-weight:700;}
+.chainrow .cp{font-variant-numeric:tabular-nums;font-size:13px;font-weight:800;min-width:48px;text-align:right;}
 .entrants{list-style:none;margin:10px 0 0;padding:0;}
 .entrants li{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;}
 .entrants li:last-child{border-bottom:none;}
@@ -52,6 +65,7 @@ h1{font-size:clamp(26px,4vw,40px);font-weight:800;letter-spacing:-.02em;margin:0
   <div class="tabs">
     <a class="tab" href="/top-rwa-protocols.html">Dashboard</a>
     <a class="tab active" href="/analytics.html">Analytics</a>
+    <span class="tab soon" title="Coming soon" role="button" aria-disabled="true">News</span>
   </div>
   <div class="beta-note"><strong>Beta:</strong> these figures are in beta testing and may be incomplete, delayed, or inaccurate. Descriptive data only &mdash; for informational purposes, not investment advice.</div>
   <p class="updated" id="updated">Loading&hellip;</p>
@@ -78,6 +92,14 @@ h1{font-size:clamp(26px,4vw,40px);font-weight:800;letter-spacing:-.02em;margin:0
       <div class="chartWrap"><canvas id="concLine"></canvas></div>
     </div>
     <div class="chartCard full">
+      <h2>Chain distribution</h2>
+      <p class="csub">Where $1M+ RWA protocols are based, by <strong>primary chain</strong> (each protocol counted once).</p>
+      <div class="chaingrid">
+        <div class="chartWrap" style="height:230px;"><canvas id="chainDonut"></canvas></div>
+        <div id="chainBreakdown" class="chainbreak"></div>
+      </div>
+    </div>
+    <div class="chartCard full">
       <h2>This week</h2>
       <p class="csub">Biggest daily gainer and latest new entrants.</p>
       <div id="highlights"></div>
@@ -94,7 +116,7 @@ h1{font-size:clamp(26px,4vw,40px);font-weight:800;letter-spacing:-.02em;margin:0
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const DATA = {"generated_at": "2026-06-15T08:03:05Z", "series": [{"date": "2026-06-15", "total_tvl_usd": 26017828533.53, "flow_24h_usd": 137876814.48, "asset_count_above_1m": 79, "top3_share_pct": 34.97, "top10_share_pct": 74.77, "new_entrants": 0}], "latest": {"date": "2026-06-15", "total_tvl_usd": 26017828533.53, "flow_24h_usd": 137876814.48, "asset_count_above_1m": 79, "top3_share_pct": 34.97, "top10_share_pct": 74.77, "new_entrants": 0}, "conc_split": {"top3": 34.97, "top4_10": 39.8, "rest": 25.2}, "top_gainer_24h": {"name": "Tether Gold", "slug": "tether-gold", "tvl_change_usd": 54199247.97, "tvl_usd": 3059323768.89745}, "new_entrants_latest": [], "weekly_climbers": [{"name": "Mountain Protocol", "slug": "mountain-protocol", "spots": 3, "rank": 74, "prev_rank": 77}, {"name": "Tether Gold", "slug": "tether-gold", "spots": 2, "rank": 1, "prev_rank": 3}, {"name": "Anzen V2", "slug": "anzen-v2", "spots": 2, "rank": 56, "prev_rank": 58}], "weekly_baseline_date": "2026-06-13"};
+const DATA = {"generated_at": "2026-06-15T16:39:37Z", "series": [{"date": "2026-06-15", "total_tvl_usd": 26045143593.78, "flow_24h_usd": 165191874.73, "asset_count_above_1m": 79, "top3_share_pct": 35.28, "top10_share_pct": 75.02, "new_entrants": 0}], "latest": {"date": "2026-06-15", "total_tvl_usd": 26045143593.78, "flow_24h_usd": 165191874.73, "asset_count_above_1m": 79, "top3_share_pct": 35.28, "top10_share_pct": 75.02, "new_entrants": 0}, "conc_split": {"top3": 35.28, "top4_10": 39.7, "rest": 25.0}, "chain_distribution": {"total_protocols": 79, "leader": {"chain": "Ethereum", "count": 28}, "breakdown": [{"chain": "Ethereum", "count": 28, "share_pct": 35.4}, {"chain": "Binance", "count": 10, "share_pct": 12.7}, {"chain": "Solana", "count": 6, "share_pct": 7.6}, {"chain": "Avalanche", "count": 4, "share_pct": 5.1}, {"chain": "Algorand", "count": 3, "share_pct": 3.8}, {"chain": "Others", "count": 28, "share_pct": 35.4}]}, "top_gainer_24h": {"name": "Tether Gold", "slug": "tether-gold", "tvl_change_usd": 87955693.67, "tvl_usd": 3093080214.593609}, "new_entrants_latest": [], "weekly_climbers": [{"name": "Tether Gold", "slug": "tether-gold", "spots": 2, "rank": 1, "prev_rank": 3}, {"name": "ComTech Gold", "slug": "comtech-gold", "spots": 2, "rank": 64, "prev_rank": 66}, {"name": "Asseto CASH+", "slug": "asseto-cash+", "spots": 2, "rank": 74, "prev_rank": 76}], "weekly_baseline_date": "2026-06-13"};
 const fmtB = v => '$' + (v/1e9).toFixed(2) + 'B';
 const fmtM = v => (v>=0?'+':'\u2212') + '$' + (Math.abs(v)/1e6).toFixed(1) + 'M';
 const fmtMplain = v => '$' + (v/1e6).toFixed(1) + 'M';
@@ -145,6 +167,28 @@ if(series.length){
       {label:'Top 3',data:series.map(d=>d.top3_share_pct),borderColor:'#5ed6ff',borderWidth:2,pointRadius:0,tension:.35}]},
     options:{responsive:true,maintainAspectRatio:false,layout:{padding:{right:46}},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw+'%'}}},scales:baseScales(v=>v+'%')},plugins:[lineLabels]});
 }
+
+// ---- Chain distribution (primary chain, $1M+ set) ----
+(function(){
+  const cd = DATA.chain_distribution;
+  if(!cd || !cd.breakdown || !cd.breakdown.length) return;
+  const palette = ['#5ed6ff','#1c8fd6','#3bb0ea','#7fe0ff','#0e7bb8','rgba(255,255,255,.14)'];
+  const labels = cd.breakdown.map(b=>b.chain);
+  const counts = cd.breakdown.map(b=>b.count);
+  const colors = cd.breakdown.map((b,i)=> b.chain==='Others' ? 'rgba(255,255,255,.14)' : palette[i%palette.length]);
+  const total = cd.total_protocols||counts.reduce((a,b)=>a+b,0);
+  const leader = cd.leader||{};
+  const chainCenter = {id:'chainCenter',afterDraw(chart){const {ctx}=chart;const meta=chart.getDatasetMeta(0);if(!meta||!meta.data||!meta.data.length)return;const arc=meta.data[0];const cx=arc.x,cy=arc.y;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';ctx.font='800 30px ui-sans-serif,system-ui,sans-serif';ctx.fillText(total,cx,cy-6);ctx.fillStyle='rgba(255,255,255,.55)';ctx.font='600 10px ui-sans-serif,system-ui,sans-serif';if(leader.chain){ctx.fillText(leader.chain+' leads ('+leader.count+')',cx,cy+14);}ctx.restore();}};
+  new Chart(document.getElementById('chainDonut'),{type:'doughnut',
+    data:{labels,datasets:[{data:counts,backgroundColor:colors,borderColor:'#0b0f14',borderWidth:3}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+': '+c.raw+' protocols ('+cd.breakdown[c.dataIndex].share_pct+'%)'}}}},plugins:[chainCenter]});
+  // breakdown cards
+  const bc = document.getElementById('chainBreakdown');
+  bc.innerHTML = cd.breakdown.map((b,i)=>{
+    const col = b.chain==='Others' ? 'rgba(255,255,255,.3)' : palette[i%palette.length];
+    return `<div class="chainrow"><span class="dot" style="background:${col}"></span><span class="cn">${b.chain}</span><span class="ca">${b.count}</span><span class="cp">${b.share_pct}%</span></div>`;
+  }).join('');
+})();
 
 const g = DATA.top_gainer_24h, ents = DATA.new_entrants_latest||[];
 let h='';
