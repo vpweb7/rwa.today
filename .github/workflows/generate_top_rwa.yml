@@ -257,7 +257,7 @@ jobs:
             <details class="method">
               <summary>Methodology</summary>
               <p>This leaderboard ranks tokenized real-world asset (RWA) protocols by <strong>total value locked (TVL)</strong>, using the most recent daily snapshot (UTC).</p>
-              <p>The raw data &mdash; including TVL, protocol name, symbol, chains and logo &mdash; comes from <strong>DeFiLlama</strong>'s open API. The ranking, the $1M filter, and any other figures are produced by RWA Today from that data.</p>
+              <p>The raw data &mdash; including TVL, protocol name, symbol, chains and logo &mdash; comes from <strong>DeFiLlama</strong>'s open API. Any statistics and calculations shown on the site are produced by RWA Today from that data.</p>
               <p>Only protocols with <strong>at least $1M in TVL</strong> are listed. Figures change daily and may be revised as the source data updates.</p>
               <p>Each row links to a protocol detail page with more statistics &mdash; tap any protocol to open it.</p>
             </details>
