@@ -266,7 +266,7 @@ jobs:
             </details>
 
             <div class="footer">
-              Underlying TVL data: <a href="https://defillama.com" target="_blank" rel="noopener noreferrer">DeFiLlama</a> (open API, cited with thanks). All rankings, weekly movement and derived figures are produced by RWA Today and are not provided or endorsed by DeFiLlama. Data "as is" &middot; Educational only &middot; Not investment advice. &middot; <a href="/terms.html">Terms</a> &middot; <a href="/privacy.html">Privacy</a>
+              Source: <a href="https://defillama.com" target="_blank" rel="noopener noreferrer">DeFiLlama</a> (Open API, with thanks). Analytics: RWA Today. All rankings, weekly trends, and derived metrics are produced independently by RWA Today and are not endorsed by DeFiLlama. Content is for educational purposes only, provided "as is", and is not investment advice. &middot; <a href="/terms.html">Terms</a> &middot; <a href="/privacy.html">Privacy</a>
             </div>
           </div>
           </body></html>'''

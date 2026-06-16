@@ -104,6 +104,7 @@ jobs:
           .entrants li{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;}
           .entrants li:last-child{border-bottom:none;}
           .entrants .amt{color:var(--blue);font-variant-numeric:tabular-nums;font-weight:700;}
+          .entrants .gpct{color:var(--blue);font-size:11px;font-weight:700;opacity:.8;}
           .entrants .none{color:var(--faint);font-size:13px;padding:8px 0;}
           .gainer{display:flex;align-items:baseline;gap:10px;margin-top:8px;}
           .gainer .nm{font-weight:800;font-size:16px;}
@@ -154,10 +155,15 @@ jobs:
                   <div id="chainBreakdown" class="chainbreak"></div>
                 </div>
               </div>
-              <div class="chartCard full">
+              <div class="chartCard">
                 <h2>This week</h2>
-                <p class="csub">Biggest daily gainer and latest new entrants.</p>
+                <p class="csub">Latest new entrants to the $1M+ set.</p>
                 <div id="highlights"></div>
+              </div>
+              <div class="chartCard">
+                <h2>Top gainers (7d)</h2>
+                <p class="csub">Largest TVL growth over the past week.</p>
+                <div id="gainers7d"></div>
               </div>
             </div>
             <div class="chartCard" style="margin-top:14px;">
@@ -166,7 +172,7 @@ jobs:
               <p id="analysisText" style="color:rgba(255,255,255,.82);font-size:14.5px;line-height:1.75;margin:0;"></p>
             </div>
             <div class="footer">
-              Underlying TVL data: <a href="https://defillama.com" target="_blank" rel="noopener noreferrer">DeFiLlama</a> (open API, cited with thanks). All flow, concentration and derived figures are produced by RWA Today and are not provided or endorsed by DeFiLlama. Data "as is" &middot; Educational only &middot; Not investment advice. &middot; <a href="/terms.html">Terms</a> &middot; <a href="/privacy.html">Privacy</a>
+              Source: <a href="https://defillama.com" target="_blank" rel="noopener noreferrer">DeFiLlama</a> (Open API, with thanks). Analytics: RWA Today. All rankings, weekly trends, and derived metrics are produced independently by RWA Today and are not endorsed by DeFiLlama. Content is for educational purposes only, provided "as is", and is not investment advice. &middot; <a href="/terms.html">Terms</a> &middot; <a href="/privacy.html">Privacy</a>
             </div>
           </div>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -245,13 +251,25 @@ jobs:
             }).join('');
           })();
 
-          const g = DATA.top_gainer_24h, ents = DATA.new_entrants_latest||[];
+          const ents = DATA.new_entrants_latest||[];
           let h='';
-          if(g){h+=`<div class="csub" style="margin:0 0 2px">Biggest 24h gainer</div><div class="gainer"><span class="nm">${g.name}</span><span class="ch">${fmtM(g.tvl_change_usd)}</span></div>`;}
-          h+=`<div class="csub" style="margin:16px 0 2px">New entrants</div>`;
           if(ents.length){h+='<ul class="entrants">'+ents.map(e=>`<li><span>${e.name}</span><span class="amt">${fmtMplain(e.tvl_usd)}</span></li>`).join('')+'</ul>';}
-          else{h+='<div class="entrants"><div class="none">No new entrants in the latest snapshot.</div></div>';}
+          else{h+='<div class="entrants"><div class="none">No new protocols entered the list recently.</div></div>';}
           document.getElementById('highlights').innerHTML=h;
+
+          // 7-day top gainers list
+          const wg = DATA.weekly_gainers||[];
+          let gh='';
+          if(wg.length){
+            gh='<ul class="entrants">'+wg.map(x=>{
+              const pct = (x.pct_change!=null)?` <span class="gpct">+${x.pct_change}%</span>`:'';
+              return `<li><span>${x.name}${pct}</span><span class="amt">${fmtM(x.tvl_change_usd)}</span></li>`;
+            }).join('')+'</ul>';
+          } else {
+            gh='<div class="entrants"><div class="none">Not enough history yet for weekly gainers.</div></div>';
+          }
+          document.getElementById('gainers7d').innerHTML=gh;
+
 
           // ---- Automated market summary (template-based, deterministic by date) ----
           function pickVar(variants, seed){let n=0;for(let i=0;i<seed.length;i++)n+=seed.charCodeAt(i);return variants[n%variants.length];}
@@ -301,13 +319,18 @@ jobs:
             }
             const ne=L.new_entrants||0;
             if(ne>0){out.push(pickVar([
-              `${ne} new protocol${ne>1?'s':''} crossed the $1M threshold.`,
-              `${ne} protocol${ne>1?'s':''} entered the $1M+ set this period.`,
+              `${ne} new protocol${ne>1?'s':''} appeared in the tracked set.`,
+              `${ne} newly listed protocol${ne>1?'s':''} joined this period.`,
             ], d+'ne'));}
-            if(g){out.push(pickVar([
-              `${g.name} led daily gainers, adding ${moneySigned(g.tvl_change_usd)}.`,
-              `The biggest daily mover was ${g.name}, up ${moneySigned(g.tvl_change_usd)}.`,
-            ], d+'gain'));}
+            const wg2 = DATA.weekly_gainers||[];
+            if(wg2.length){
+              const t = wg2[0];
+              out.push(pickVar([
+                `${t.name} led weekly gainers, adding ${moneySigned(t.tvl_change_usd)} in TVL.`,
+                `Over the week, ${t.name} grew the most, up ${moneySigned(t.tvl_change_usd)}.`,
+                `${t.name} posted the biggest weekly TVL gain at ${moneySigned(t.tvl_change_usd)}.`,
+              ], d+'wgain'));
+            }
             document.getElementById('analysisText').textContent = out.join(' ');
           })();
           </script>
