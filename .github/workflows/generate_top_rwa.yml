@@ -155,9 +155,6 @@ jobs:
 
           elig_today, rank_today = ranked(today)
 
-          # total value of the eligible ($1M+) set, for market share
-          total_elig = sum(v["tvl"] for _, v in elig_today) or 1.0
-
           def fmt(v):
               if v >= 1e9: return f"${v/1e9:.2f}B"
               if v >= 1e6: return f"${v/1e6:.1f}M"
@@ -244,7 +241,7 @@ jobs:
               <h1>Top RWA Protocols</h1>
               <p class="upd">Updated {today_day}</p>
             </div>
-            <p class="sub">Ranked by total value locked (TVL), with each protocol's market share.</p>
+            <p class="sub">Tokenized real-world asset protocols, ranked by total value locked (TVL).</p>
             <div class="tabs">
               <a class="tab active" href="/top-rwa-protocols.html">Dashboard</a>
               <a class="tab" href="/analytics.html">Analytics</a>
@@ -259,10 +256,10 @@ jobs:
 
             <details class="method">
               <summary>Methodology</summary>
-              <p>This leaderboard ranks tokenized real-world asset (RWA) protocols by <strong>total value locked (TVL)</strong>. Underlying TVL figures come from <strong>DeFiLlama</strong>'s open API and reflect each protocol's tracked on-chain value at the most recent daily snapshot (UTC).</p>
-              <p>Only protocols with <strong>at least $1M in tracked TVL</strong> are included, to keep the list to assets with meaningful, verifiable on-chain value.</p>
-              <p>Each row links to a protocol detail page with more statistics. Tap any protocol to open it.</p>
-              <p>Rankings and shares are computed by RWA Today from daily snapshots; only the raw TVL is sourced from DeFiLlama. Figures change daily and may be revised as source data updates.</p>
+              <p>This leaderboard ranks tokenized real-world asset (RWA) protocols by <strong>total value locked (TVL)</strong>, using the most recent daily snapshot (UTC).</p>
+              <p>The raw data &mdash; including TVL, protocol name, symbol, chains and logo &mdash; comes from <strong>DeFiLlama</strong>'s open API. The ranking, the $1M filter, and any other figures are produced by RWA Today from that data.</p>
+              <p>Only protocols with <strong>at least $1M in TVL</strong> are listed. Figures change daily and may be revised as the source data updates.</p>
+              <p>Each row links to a protocol detail page with more statistics &mdash; tap any protocol to open it.</p>
             </details>
 
             <div class="footer">
